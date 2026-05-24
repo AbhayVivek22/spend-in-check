@@ -1,44 +1,30 @@
 import React, { useState } from "react";
-import { CATEGORIES } from "../types";
-import type { Expense } from "../types";
+import { INCOME_SOURCES } from "../types";
+import type { Income } from "../types";
 import { format } from "date-fns";
 import { ArrowLeft } from "lucide-react";
 
-interface AddExpenseProps {
-  onAdd: (expense: Omit<Expense, "id">) => void;
-  onEdit?: (id: string, expense: Omit<Expense, "id">) => void;
-  expenseToEdit?: Expense;
+interface AddIncomeProps {
+  onAdd: (income: Omit<Income, "id">) => void;
   onCancel?: () => void;
 }
 
-export default function AddExpense({ onAdd, onEdit, expenseToEdit, onCancel }: AddExpenseProps) {
-  const isEditing = !!expenseToEdit;
-  const [amount, setAmount] = useState<string>(expenseToEdit ? String(expenseToEdit.amount) : "");
-  const [description, setDescription] = useState<string>(expenseToEdit?.description ?? "");
-  const [category, setCategory] = useState<string>(expenseToEdit?.category ?? CATEGORIES[0]);
-  const [date, setDate] = useState<string>(expenseToEdit ? format(new Date(expenseToEdit.date), "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"));
+export default function AddIncome({ onAdd, onCancel }: AddIncomeProps) {
+  const [amount, setAmount] = useState<string>("");
+  const [source, setSource] = useState<string>(INCOME_SOURCES[0]);
+  const [date, setDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || isNaN(Number(amount)) || !description || !date) return;
+    if (!amount || isNaN(Number(amount)) || !date) return;
 
-    const data: Omit<Expense, "id"> = {
+    onAdd({
       amount: Number(amount),
-      description,
-      category,
+      source,
       date: new Date(date).toISOString(),
-    };
+    });
 
-    if (isEditing && onEdit && expenseToEdit) {
-      onEdit(expenseToEdit.id, data);
-    } else {
-      onAdd(data);
-    }
-
-    if (!isEditing) {
-      setAmount("");
-      setDescription("");
-    }
+    setAmount("");
   };
 
   return (
@@ -51,8 +37,8 @@ export default function AddExpense({ onAdd, onEdit, expenseToEdit, onCancel }: A
             </button>
           )}
           <div>
-            <h1 className="text-2xl font-light text-white tracking-tight">{isEditing ? "Edit Expense" : "Add Expense"}</h1>
-            <p className="text-zinc-500 text-xs mt-1 uppercase tracking-widest font-bold">{isEditing ? "Update transaction details" : "Record a transaction"}</p>
+            <h1 className="text-2xl font-light text-white tracking-tight">Add Income</h1>
+            <p className="text-zinc-500 text-xs mt-1 uppercase tracking-widest font-bold">Record money received</p>
           </div>
         </div>
       </header>
@@ -79,28 +65,14 @@ export default function AddExpense({ onAdd, onEdit, expenseToEdit, onCancel }: A
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Description</label>
-            <input
-              type="text"
-              required
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-300 focus:outline-none focus:border-emerald-500 transition-colors"
-              placeholder="e.g. Dinner at Nobu..."
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Category</label>
+            <label className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Source</label>
             <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              value={source}
+              onChange={(e) => setSource(e.target.value)}
               className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-300 focus:outline-none focus:border-emerald-500 transition-colors appearance-none"
             >
-              {CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
+              {INCOME_SOURCES.map((src) => (
+                <option key={src} value={src}>{src}</option>
               ))}
             </select>
           </div>
@@ -112,7 +84,7 @@ export default function AddExpense({ onAdd, onEdit, expenseToEdit, onCancel }: A
               required
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-300 focus:outline-none focus:border-emerald-500 transition-colors dark-color-scheme-override"
+              className="w-full bg-black border border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-300 focus:outline-none focus:border-emerald-500 transition-colors"
               style={{ colorScheme: 'dark' }}
             />
           </div>
@@ -120,9 +92,9 @@ export default function AddExpense({ onAdd, onEdit, expenseToEdit, onCancel }: A
           <div className="pt-2 flex flex-col gap-3">
             <button
               type="submit"
-              className="w-full py-4 bg-zinc-100 text-black font-black rounded-2xl hover:bg-white active:scale-95 transition-all text-center"
+              className="w-full py-4 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-black rounded-2xl hover:bg-emerald-500/30 active:scale-95 transition-all text-center uppercase tracking-widest text-xs"
             >
-              {isEditing ? "SAVE CHANGES" : "ADD TRANSACTION"}
+              Add Income
             </button>
             {onCancel && (
               <button
